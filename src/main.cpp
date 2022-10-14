@@ -12,25 +12,25 @@ typedef enum {
 static States state = STE_BEGIN; //Verificar se esta declarada no local certo
 
 //Inputs:
-#define GPIO_YES;
-#define GPIO_NO
-#define GPIO_CONTINUE
-#define GPIO_CANCEL
-#define GPIO_SUP1
-#define GPIO_SUP2
-#define GPIO_SUP3
-#define GPIO_SUP4
-#define GPIO_SUP5
-#define GPIO_LED1
-#define GPIO_LED2
-#define GPIO_LED3
-#define GPIO_LED4
+#define GPIO_CONTINUE 1
+#define GPIO_CANCEL 2
+#define GPIO_SUP1 3
+#define GPIO_SUP2 4
+#define GPIO_SUP3 5
+#define GPIO_SUP4 6
+#define GPIO_MILK
+#define GPIO_SENSOR
 
-bool Leite;
+//Outputs:
+#define GPIO_MOTOR1
+#define GPIO_MOTOR2
+#define GPIO_MOTOR3
+#define GPIO_MOTOR4
+#define GPIO_MOTOR5
 
 /*=============== Global Variables =================*/
-float valor_total_compra = 0; //Valor total do pedido
-int Supplement_order{5}; //Vetor 
+float Order_Price = 0; //Valor total do pedido
+int Supplement_order{4}; //Vetor 
 
 void setup()
 {
@@ -61,35 +61,36 @@ void loop()
   switch (state)
   {
     case STE_BEGIN:
-      if ()
+      while (!GPIO_CONTINUE)
       {
-        
+        //lcd print 'Bem Vindo'
       }
+      state = STE_SUPPLEMENT;
       break;
 
     case STE_SUPPLEMENT:
-      if ()
+      if (1)
       {
         
       }
       break;
 
     case STE_BASE:
-      if ()
+      if (1)
       {
         
       }
       break;
 
     case STE_PAYMENT:
-      if ()
+      if (1)
       {
         
       }
       break;
 
     case STE_PREPARE:
-      if ()
+      if (1)
       {
         
       }
