@@ -1,0 +1,35 @@
+Portas Ocupadas:
+
+Display LCD I2C:
+  GPIO_21 - SSA 
+  GPIO_22 - SCL 
+
+RFID:
+  GPIO_5 - 'PRIMEIRO PINO RFID' -> SS ou SDA (ocupado) ou RX
+  GPIO_18 - SCK
+  GPIO_23 - MOSI
+  GPIO_19 - MISO
+
+OUTPUT - Módulo Reles:
+  GPIO_36 - MOTOR 1
+  GPIO_39 - MOTOR 2
+  GPIO_34 - MOTOR 3
+  GPIO_35 - MOTOR 4
+  GPIO_32 - MOTOR 5
+  GPIO_33 - Bomba de Água
+
+OUTPUT - LEDS:
+  GPIO_17 - LED 1 - Suplemento 1
+  GPIO_16 - LED 2 - Suplemento 2
+  GPIO_4 - LED 3 - Suplemento 3
+  GPIO_2 - LED 4 - Suplemento 4
+  GPIO_15 - LED 5 - Leite
+
+INPUTS -Botões:
+  GPIO_25 - Botão 1 - Suplemento 1
+  GPIO_26 - Botão 2 - Suplemento 2
+  GPIO_27 - Botão 3 - Suplemento 3
+  GPIO_14 - Botão 4 - Suplemento 4
+  GPIO_12 - Botão 5 - Leite
+  GPIO_13 - Botão 6 - Continuar
+  GPIO_1 - Sensor Presença Copo
