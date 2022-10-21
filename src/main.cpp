@@ -1,7 +1,8 @@
 #include <Arduino.h>
-#include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <SPI.h>
+#include <MFRC522.h>
+#include <Wire.h>
 #include "ShakeBuilder_lib.h"
 
 /*===================== Máquina de estados ====================*/
@@ -30,6 +31,7 @@ void Tela_pagamento_aguardando();
 void Tela_pagamento_confirmado();
 void Tela_preparo_esperando_copo();
 void Tela_preparo_servindo();
+void Tela_fim();
 
 
 void setup()
@@ -99,11 +101,15 @@ void loop()
     break;
 
   case ESTADO_PREPARO:
-    if (digitalRead(SENSOR_COPO) == HIGH) // Prepara o Shake somente se identificar o copo
+    while (digitalRead(SENSOR_COPO) == LOW) // Prepara o Shake somente se identificar o copo
     {
-
+      Tela_preparo_esperando_copo();
     }
     lcd.clear(); // Limpa display
+    Tela_preparo_servindo();
+    shake.Prepara_Shake();
+    Tela_fim();
+    delay(5000);
     estado = ESTADO_INICIO;
     break;
 
@@ -209,6 +215,18 @@ void Tela_preparo_servindo()
   lcd.print("Servindo");
   lcd.setCursor(6, 2);
   lcd.print("Shake...");
+  lcd.setCursor(0, 3);
+  lcd.print("#==================#");
+}
+
+void Tela_fim()
+{
+  lcd.setCursor(0, 0);
+  lcd.print("#==================#");
+  lcd.setCursor(2, 1);
+  lcd.print("Agradecemos pela");
+  lcd.setCursor(5, 2);
+  lcd.print("Compra! :)");
   lcd.setCursor(0, 3);
   lcd.print("#==================#");
 }
