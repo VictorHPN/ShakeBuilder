@@ -2,74 +2,53 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <SPI.h>
+#include "ShakeBuilder_lib.h"
 
-LiquidCrystal_I2C lcd(0x27, 16, 2); // Inicialização Display LCD
-
-/*=========== Máquina de estados ============*/
+/*===================== Máquina de estados ====================*/
 typedef enum
 {
   ESTADO_INICIO = 0,
   ESTADO_SUPLEMENTO,
-  ESTADO_BASE,
   ESTADO_PAGAMENTO,
   ESTADO_PREPARO
 } Estados;
 
-static Estados estado = ESTADO_INICIO; // Verificar se esta declarada no local certo
+static Estados estado = ESTADO_INICIO;
 
-/*=============== Inputs/Outputs =================*/
-// Inputs:
-#define SENSOR_COPO 1
-#define BUTTON_CONTINUE 12
-#define BUTTON_LEITE 13
+/*=================== Variáveis de controle ===================*/
+bool continue_pressed = false; // controle do botão de continue
 
-// Outputs
-#define BOMBA_AGUA 33
-#define LED_LEITE 15
+Shake shake; // Objeto do shake a ser preparado
 
-/*=============== Funções =================*/
-void PreparaShake();
-void ApagaPedido();
-void AddPedido(int sup);
+/*======================= Configs LCD =========================*/
+LiquidCrystal_I2C lcd(0x27, 20, 4); // Inicialização Display LCD
+// Funções:
+void Tela_incio();
+void Tela_suplemento();
+void Tela_suplemento_atualizada(float preco, int id_sup, int doses, bool leite);
+void Tela_pagamento_aguardando();
+void Tela_pagamento_confirmado();
+void Tela_preparo_esperando_copo();
+void Tela_preparo_servindo();
 
-/*=============== Variáveis Globais =================*/
-float preco_total = 0; // Valor total do pedido
-float preco_sup[4] = {1.5, 1.2, 1, 2}; // Preço de cada dose de suplemento
-int doses = 0; // Números de doses de suplemento do pedido
-int sup_id = NULL;
-
-const int button_sup[4] = {25, 26, 27, 14}; // Portas dos botões de seleção de suplementos
-int button_sup_state[4] = {0, 0, 0, 0}; // Armazenar estado dos botões de seleção de suplementos
-const int led_sup_state[4] = {17, 16, 4, 2}; // Portas dos leds que indicam se o botão foi pressionado
-const int motor[5] = {36, 39, 34, 35, 32}; // Portas de saida dos relês de ativição dos motores
-
-int continue_pressed = 0; // controle do botão de continue
 
 void setup()
 {
-  /*=============== Display LCD =================*/
-  lcd.begin();
-  lcd.backlight();
-  lcd.print("Bem Vindo");  
-  lcd.setCursor(0, 1);
-  lcd.print("Press Continue...");
-
-  /*=============== Inputs/Outputs =================*/
+  /*===================== Inputs/Outputs ======================*/
   pinMode(SENSOR_COPO, INPUT);
   pinMode(BUTTON_CONTINUE, INPUT_PULLDOWN);
-  pinMode(BUTTON_LEITE, INPUT_PULLDOWN);
-  
-  for (int i = 0; i<4; i++){
-    pinMode(button_sup[i], INPUT_PULLDOWN);
-    pinMode(led_sup_state[i], OUTPUT);
-  }
-
   for (int i = 0; i<5; i++)
-    pinMode(motor[i], OUTPUT);  
-  
+  {
+    pinMode(button_state[i], INPUT_PULLDOWN);
+    pinMode(led_state[i], OUTPUT);
+    pinMode(motor[i], OUTPUT);
+  }
   pinMode(BOMBA_AGUA, OUTPUT);
   pinMode(LED_LEITE, OUTPUT);
-  
+
+  /*================ Inicialização Display LCD ================*/
+  lcd.begin();
+  lcd.backlight();
 }
 
 void loop()
@@ -78,125 +57,158 @@ void loop()
   switch (estado)
   {
   case ESTADO_INICIO:
-    // while (digitalRead(BUTTON_CONTINUE) == LOW)
-    if(1)
+    while (digitalRead(BUTTON_CONTINUE) == LOW)
     {
-      lcd.setCursor(0, 1);
-      lcd.print("Press Continue...");
-      delay(2000);
+      Tela_incio(); // Estado de repouso enquanto a compra não é iniciada
     }
-    lcd.clear();
-    estado = ESTADO_SUPLEMENTO;
+    lcd.clear(); // Limpa display
+    estado = ESTADO_SUPLEMENTO; // Avança para próximo estado
     break;
 
   case ESTADO_SUPLEMENTO:
-
-    while (continue_pressed == 0 || preco_total == 0) // só avança de estado se algum produto foi selecionado e 'Continuar' foi pressionado
+    Tela_suplemento();
+    while (continue_pressed == false || shake.get_preco_total() <= 0) // Enquanto
     {
-      lcd.setCursor(0, 0);
-      lcd.print("Preco: ");
-      lcd.setCursor(0, 1);
-      lcd.print("Sup:   Ds: ");
-      
-
-      if (continue_pressed == 0) // Verifica se Continue foi pressionado e armazena na variável de controle
-        continue_pressed = digitalRead(BUTTON_CONTINUE);
-
-      for (int i = 0; i < 4; i++) // loop que monitora os 4 botões de suplemento
+      for (int i = 0; i < 5; i++) // loop que monitora os 4 botões de suplemento
       {
-        if(digitalRead(button_sup[i])==HIGH){
-          AddPedido(i);
-
-          lcd.setCursor(7,0);
-          lcd.print(preco_total);
-          lcd.setCursor(5,1);
-          lcd.print(sup_id);
-          lcd.setCursor(11,1);
-          lcd.print(doses);
+        if(digitalRead(button_state[i]) == HIGH) // Ao identificar o pressionamento de um botão...
+        {
+          shake.Adiciona_ao_Pedido(i);
+          Tela_suplemento_atualizada(shake.get_preco_total(), shake.get_id_suplemento(),
+                                    shake.get_doses(), shake.get_leite_st());
           delay(400);
         }
       }
+      if (continue_pressed == false)
+      { // Verifica se Continue foi pressionado e armazena na variável de controle
+        continue_pressed = digitalRead(BUTTON_CONTINUE);
+      }
     }
-    continue_pressed = 0; // reset var de controle continue
-    estado = ESTADO_BASE; // Avança de estado
-    break;
-
-  case ESTADO_BASE:
-    if (1)
-    {
-      estado = ESTADO_PAGAMENTO;
-    }
+    lcd.clear(); // Limpa display
+    continue_pressed = false; // reset var de controle continue
+    estado = ESTADO_PAGAMENTO; // Avança para próximo estado
     break;
 
   case ESTADO_PAGAMENTO:
-    if (1)
+    if (1) // Avança para o prepario somente se identificar o pagamaento
     {
-      estado = ESTADO_PREPARO;
+      
     }
+    lcd.clear(); // Limpa display
+    estado = ESTADO_PREPARO;  // Avança para próximo estado
     break;
 
   case ESTADO_PREPARO:
     if (digitalRead(SENSOR_COPO) == HIGH) // Prepara o Shake somente se identificar o copo
     {
-      
+
     }
+    lcd.clear(); // Limpa display
+    estado = ESTADO_INICIO;
+    break;
+
+  default:
+    estado = ESTADO_INICIO;
     break;
   }
 }
 
-void ApagaPedido(){ // Apaga o pedido
-  for (int i = 0; i<4; i++)
-    digitalWrite(led_sup_state[i], LOW);
-    preco_total = 0;
-    doses = 0;
-    sup_id = NULL;
-}
-
-void AddPedido(int i) // Adicionar o suplemento selecionado
+void Tela_incio()
 {
-  if (digitalRead(led_sup_state[i]) == LOW)
-  { // Se for um suplemento não selecionado anteriormente, o pedido é apagado (reset)
-    // e inicia-se um novo pedido com o suplemento em questão
-    ApagaPedido();
-    digitalWrite(led_sup_state[i], HIGH);
-    preco_total = preco_sup[i];
-    doses += 1;
-    sup_id = i;
-  }
-  else if(doses<5){ // Se o suplemento ja foi selecionado durante o pedido, apenas adiciona-se uma dose a mais (limite 5 doses)
-    preco_total += preco_sup[i];
-    doses += 1;
-  }
-  else // Caso o limite de 5 doses seja ultrapassado, apaga o pedido
-    ApagaPedido();
+  lcd.setCursor(0, 0);
+  lcd.print("#==================#");
+  lcd.setCursor(5, 1);
+  lcd.print("Bem-Vindo!");
+  lcd.setCursor(0, 2);
+  lcd.print("Clique em Continuar.");
+  lcd.setCursor(0, 3);
+  lcd.print("#==================#");
 }
 
-void PreparaShake()
+void Tela_suplemento()
 {
-  if (digitalRead(led_sup_state[0]) == 1)
-  {
-    motor[0] == HIGH;
-  }
+  lcd.setCursor(4, 0);
+  lcd.print("Preco:R$");
+  lcd.setCursor(0, 1);
+  lcd.print("Suplemento:");
+  lcd.setCursor(13, 1);
+  lcd.print("Doses:");
+  lcd.setCursor(0, 2);
+  lcd.print("Agua:   ml");
+  lcd.setCursor(11, 2);
+  lcd.print("Leite:");
+  lcd.setCursor(4, 3);
+  lcd.print("Continuar...");
+}
 
-  else if (digitalRead(led_sup_state[1]) == 1)
+void Tela_suplemento_atualizada(float preco, int id_sup, int doses, bool leite)
+{
+  //Atualiza preço
+  lcd.setCursor(12, 0);
+  lcd.print(preco);
+  //Atualiza id do suplemento selecionado
+  lcd.setCursor(11, 1);
+  lcd.print(id_sup);
+  //Atualiza o número de doses
+  lcd.setCursor(19, 1);
+  lcd.print(doses);
+  //Atualiza se o quantidade de água
+  lcd.setCursor(5, 2);
+  lcd.print(100*doses);
+  //Atualiza se o leite foi selecionado
+  lcd.setCursor(17, 2);
+  if (leite == false)
   {
-    motor[1] == HIGH;
+    lcd.print("Nao");
   }
-
-  else if (digitalRead(led_sup_state[2]) == 1)
+  else
   {
-    motor[2] == HIGH;
-  }
-
-  else if (digitalRead(led_sup_state[3]) == 1)
-  {
-    motor[3] == HIGH;
-  }
-
-  if (digitalRead(LED_LEITE) == HIGH)
-  {
-    motor[4] == HIGH;
+    lcd.print("Sim");
   }
 }
 
+void Tela_pagamento_aguardando()
+{
+  lcd.setCursor(0, 0);
+  lcd.print("#==================#");
+  lcd.setCursor(0, 1);
+  lcd.print("Aguardando Pagamento");
+  lcd.setCursor(0, 3);
+  lcd.print("#==================#");
+}
 
+void Tela_pagamento_confirmado()
+{
+  lcd.setCursor(0, 0);
+  lcd.print("#==================#");
+  lcd.setCursor(6, 1);
+  lcd.print("Pagamento");
+  lcd.setCursor(5, 2);
+  lcd.print("Aprovado!:)");
+  lcd.setCursor(0, 3);
+  lcd.print("#==================#");
+}
+
+void Tela_preparo_esperando_copo()
+{
+  lcd.setCursor(0, 0);
+  lcd.print("#==================#");
+  lcd.setCursor(0, 1);
+  lcd.print("Insira seu copo para");
+  lcd.setCursor(0, 2);
+  lcd.print("receber seu Shake...");
+  lcd.setCursor(0, 3);
+  lcd.print("#==================#");
+}
+
+void Tela_preparo_servindo()
+{
+  lcd.setCursor(0, 0);
+  lcd.print("#==================#");
+  lcd.setCursor(6, 1);
+  lcd.print("Servindo");
+  lcd.setCursor(6, 2);
+  lcd.print("Shake...");
+  lcd.setCursor(0, 3);
+  lcd.print("#==================#");
+}
