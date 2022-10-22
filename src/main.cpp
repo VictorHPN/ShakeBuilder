@@ -48,6 +48,10 @@ void setup()
   pinMode(BOMBA_AGUA, OUTPUT);
   pinMode(LED_LEITE, OUTPUT);
 
+  //TESTES RFID E SENSOR COPO
+  pinMode(5, OUTPUT); //LED PAGAMENTO CONFIRMADO
+  pinMode(3, OUTPUT); //LED SENSOR COPO IDENTIFICADO
+
   /*================ Inicialização Display LCD ================*/
   lcd.begin();
   lcd.backlight();
@@ -59,17 +63,16 @@ void loop()
   switch (estado)
   {
   case ESTADO_INICIO:
-    while (digitalRead(BUTTON_CONTINUE) == LOW)
-    {
-      Tela_incio(); // Estado de repouso enquanto a compra não é iniciada
-    }
+    Tela_incio(); // Estado de repouso enquanto a compra não é iniciada
+    while (digitalRead(BUTTON_CONTINUE) == LOW){}
+    while (digitalRead(BUTTON_CONTINUE) == HIGH){}
     lcd.clear(); // Limpa display
     estado = ESTADO_SUPLEMENTO; // Avança para próximo estado
     break;
 
   case ESTADO_SUPLEMENTO:
     Tela_suplemento();
-    while (continue_pressed == false || shake.get_preco_total() <= 0) // Enquanto
+    while (continue_pressed == false || shake.get_id_suplemento() == -1) // Enquanto
     {
       for (int i = 0; i < 5; i++) // loop que monitora os 4 botões de suplemento
       {
@@ -81,8 +84,9 @@ void loop()
           delay(400);
         }
       }
-      if (continue_pressed == false)
+      if (shake.get_id_suplemento() != -1)
       { // Verifica se Continue foi pressionado e armazena na variável de controle
+        // apenas se algum suplemento foi selecionado: id =-1 -> pedido vazio 
         continue_pressed = digitalRead(BUTTON_CONTINUE);
       }
     }
@@ -94,23 +98,31 @@ void loop()
   case ESTADO_PAGAMENTO:
     if (1) // Avança para o prepario somente se identificar o pagamaento
     {
-      
+      //PLACEHOLDER ENQUANTO NÃO TEMOS RFID
+      Tela_pagamento_aguardando();
+      delay(1000);
+      Tela_pagamento_confirmado();
+      digitalWrite(5, HIGH); // TESTE RFID
+      delay(1000);
+      digitalWrite(5, LOW); // TESTE RFID
     }
     lcd.clear(); // Limpa display
     estado = ESTADO_PREPARO;  // Avança para próximo estado
     break;
 
   case ESTADO_PREPARO:
-    while (digitalRead(SENSOR_COPO) == LOW) // Prepara o Shake somente se identificar o copo
+    while (digitalRead(SENSOR_COPO) == HIGH) // Prepara o Shake somente se identificar o copo
     {
       Tela_preparo_esperando_copo();
     }
+    digitalWrite(3, HIGH); // TESTE SENSOR
+
     lcd.clear(); // Limpa display
     Tela_preparo_servindo();
     shake.Prepara_Shake();
     Tela_fim();
     delay(5000);
-    estado = ESTADO_INICIO;
+    //ESP.restart(); // Reseta esp
     break;
 
   default:
@@ -144,7 +156,7 @@ void Tela_suplemento()
   lcd.setCursor(11, 2);
   lcd.print("Leite:");
   lcd.setCursor(4, 3);
-  lcd.print("Continuar...");
+  lcd.print("Continuar...?");
 }
 
 void Tela_suplemento_atualizada(float preco, int id_sup, int doses, bool leite)
@@ -153,8 +165,11 @@ void Tela_suplemento_atualizada(float preco, int id_sup, int doses, bool leite)
   lcd.setCursor(12, 0);
   lcd.print(preco);
   //Atualiza id do suplemento selecionado
-  lcd.setCursor(11, 1);
-  lcd.print(id_sup);
+  if (shake.get_id_suplemento() != -1)
+  {
+    lcd.setCursor(11, 1);
+    lcd.print(id_sup);
+  }
   //Atualiza o número de doses
   lcd.setCursor(19, 1);
   lcd.print(doses);

@@ -4,12 +4,12 @@
 /*=============== Inputs/Outputs =================*/
 // Inputs:
 //Botões -> OPERAÇÃO
-#define BUTTON_SUP1 25
-#define BUTTON_SUP2 26
-#define BUTTON_SUP3 27
-#define BUTTON_SUP4 14
-#define BUTTON_CONTINUE 12
-#define BUTTON_LEITE 13
+#define BUTTON_SUP1 36
+#define BUTTON_SUP2 39
+#define BUTTON_SUP3 34
+#define BUTTON_SUP4 35
+#define BUTTON_CONTINUE 33
+#define BUTTON_LEITE 32
 //Sensor do copo -> PREPARO
 #define SENSOR_COPO 1
 
@@ -20,13 +20,14 @@
 #define LED_SUP3 4
 #define LED_SUP4 2
 #define LED_LEITE 15
+
 //Motores e Bomba da Água -> PREPARO
-#define MOTOR1 36
-#define MOTOR2 39
-#define MOTOR3 34
-#define MOTOR4 35
-#define MOTOR_LEITE 32
-#define BOMBA_AGUA 33
+#define MOTOR1 25
+#define MOTOR2 26
+#define MOTOR3 27
+#define MOTOR4 14
+#define MOTOR_LEITE 12
+#define BOMBA_AGUA 13
 
 // Portas dos botões de seleção de suplementos e leite:
 const int button_state[5] = { 
@@ -75,9 +76,8 @@ class Shake{
         void set_id_suplemento(int id);
         void set_leite_st(bool state);
         //Demais métodos:
-        void Atualiza_Preco();
         void Prepara_Shake();
-        void Apaga_Pedido();
+        void Apaga_Sups_Escolhidos();
         void Adiciona_ao_Pedido(int sup);
 };
 

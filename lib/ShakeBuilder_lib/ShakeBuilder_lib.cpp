@@ -21,7 +21,6 @@ Shake::Shake()
 // set and gets:
 float Shake::get_preco_total()
 {
-
     return this->preco_total;
 }
 
@@ -60,22 +59,16 @@ void Shake::set_leite_st(bool state)
     this->leite_st = state;
 }
 
-void Shake::Atualiza_Preco()
-{ // Apaga o pedido
-    this->preco_total = (preco_suplemento[id_suplemento]) * (this->doses);
-    if (this->leite_st == true)
-    { // Se o pedido conter LEITE, adicion-se o preço do leite ao total
-        this->preco_total += preco_leite;
-    }
-}
-
-void Shake::Apaga_Pedido()
+void Shake::Apaga_Sups_Escolhidos()
 {
-    for (int i = 0; i < 5; i++)
+    //Apaga toda as opções de Suplementos escolhidas
+    for (int i = 0; i < 4; i++)
     {
         digitalWrite(led_state[i], LOW);
     }
-    this->preco_total = 0;
+    if (this->leite_st == true)
+        this->preco_total = preco_leite;
+    else this->preco_total = 0;
     this->doses = 0;
     this->id_suplemento = -1;
 }
@@ -89,49 +82,46 @@ void Shake::Adiciona_ao_Pedido(int id) // Adicionar o suplemento selecionado -> 
         if (this->leite_st == false) // Se leite ja estiver ativo -> desativa
         {
             this->leite_st = true;
-            digitalWrite(led_state[id], HIGH);
+            this->preco_total += preco_leite;
+            digitalWrite(LED_LEITE, HIGH);
         }
         else // Se leite ja estiver desativado -> ativa
         {
             this->leite_st = false;
-            digitalWrite(led_state[id], LOW);
+            this->preco_total -= preco_leite;
+            digitalWrite(LED_LEITE, LOW);
         }
     }
     else if (est_produto_selecionado == LOW)
     { // Se for um suplemento não selecionado anteriormente, o pedido é apagado (reset)
       // e inicia-se um novo pedido com o suplemento em questão
-        Apaga_Pedido();
+        Apaga_Sups_Escolhidos();
         digitalWrite(led_state[id], HIGH);
         this->doses += 1;
         this->id_suplemento = id;
+        this->preco_total += preco_suplemento[id];
     }
     else if (doses < 5)
     { // Se o suplemento ja foi selecionado durante o pedido, apenas adiciona-se 
       // uma dose a mais (limite 5 doses)
         this->doses += 1;
+        this->preco_total += preco_suplemento[id];
     }
     else
     { // Caso o limite de 5 doses seja ultrapassado, apaga o pedido
-        Apaga_Pedido();
+        Apaga_Sups_Escolhidos();
         return; // Termina o método já que o pedido foi resetado;
     }
-    Atualiza_Preco(); // Atualiza o preco_total do pedido ao fim da adição
     return;
 }
 
 void Shake::Prepara_Shake()
 {
-    for (int i = 0; i<4; i++) 
-    {
-        if (digitalRead(led_state[0]) == HIGH)
-        {
-            int tempo_operacao = (this->doses)*tempo_dose; // Calcula o tempo 
-            digitalWrite(motor[i], HIGH); // Ativa motor do suplemento escolhido
-            delay(tempo_operacao);        // até servir todas as doses,
-            digitalWrite(motor[i], LOW);  // e então desliga o motor,
-            break; // e continua para as próxima etapa do preparo
-        }
-    }
+    int tempo_operacao = (this->doses)*tempo_dose; // Calcula o tempo 
+    digitalWrite(motor[this->id_suplemento], HIGH); // Ativa motor do suplemento escolhido
+    delay(tempo_operacao);        // até servir todas as doses,
+    digitalWrite(motor[this->id_suplemento], LOW);  // e então desliga o motor,
+
     if (this->leite_st == true) // Verifica se deve adicionar leite
     {
         digitalWrite(motor[4], HIGH); // Ativa motor do leite
@@ -139,7 +129,7 @@ void Shake::Prepara_Shake()
         digitalWrite(motor[4], LOW);  // e então desliga o motor,
     }
     // Servindo a água:
-    int tempo_operacao = (this->doses)*tempo_dose_agua; // Calcula o tempo
+    tempo_operacao = (this->doses)*tempo_dose_agua; // Calcula o tempo
     digitalWrite(BOMBA_AGUA, HIGH); // Ativa a bomba de água
     delay(tempo_operacao);          // até servir todas as doses,
     digitalWrite(BOMBA_AGUA, LOW);  // e então desliga o motor,
