@@ -33,38 +33,58 @@ void Tela_preparo_esperando_copo();
 void Tela_preparo_servindo();
 void Tela_fim();
 
+/*======================= Configs RFID =========================*/
+
+// #define CS_PIN 5
+// #define RST_PIN 0
+
+// //esse objeto 'chave' é utilizado para autenticação
+// MFRC522::MIFARE_Key key;
+// //código de status de retorno da autenticação
+// MFRC522::StatusCode status;
+// // Definicoes pino modulo RC522
+// MFRC522 rfid(CS_PIN, RST_PIN);
+
+// int Pagamento(MFRC522 rfid);
+
 
 void setup()
 {
   /*===================== Inputs/Outputs ======================*/
   pinMode(SENSOR_COPO, INPUT);
-  pinMode(BUTTON_CONTINUE, INPUT_PULLDOWN);
-  for (int i = 0; i<5; i++)
+  pinMode(BUTTON_CONTINUE, INPUT);
+  for (int i = 0; i<4; i++)
   {
     pinMode(button_state[i], INPUT_PULLDOWN);
     pinMode(led_state[i], OUTPUT);
+    digitalWrite(led_state[i], LOW);
     pinMode(motor[i], OUTPUT);
+    digitalWrite(motor[i], LOW);
   }
   pinMode(BOMBA_AGUA, OUTPUT);
-  pinMode(LED_LEITE, OUTPUT);
-
-  //TESTES RFID E SENSOR COPO
-  pinMode(5, OUTPUT); //LED PAGAMENTO CONFIRMADO
-  pinMode(3, OUTPUT); //LED SENSOR COPO IDENTIFICADO
+  digitalWrite(BOMBA_AGUA, LOW);
 
   /*================ Inicialização Display LCD ================*/
   lcd.begin();
   lcd.backlight();
+
+  /*================ Inicialização RFID ================*/
+  // Serial.begin(9600);
+  // SPI.begin(); // Init SPI bus
+  // // Inicia MFRC522S
+  // rfid.PCD_Init();
+
+//--------------------------------------------------------//
 }
 
 void loop()
 {
-  /*=============== estado Machine =================*/
+  /*=============== Máquina de Estados =================*/
   switch (estado)
   {
   case ESTADO_INICIO:
     Tela_incio(); // Estado de repouso enquanto a compra não é iniciada
-    while (digitalRead(BUTTON_CONTINUE) == LOW){}
+    while (digitalRead(BUTTON_CONTINUE) == LOW){} // Fica em repouso enquanto o botão não é apertado e solto
     while (digitalRead(BUTTON_CONTINUE) == HIGH){}
     lcd.clear(); // Limpa display
     estado = ESTADO_SUPLEMENTO; // Avança para próximo estado
@@ -74,7 +94,7 @@ void loop()
     Tela_suplemento();
     while (continue_pressed == false || shake.get_id_suplemento() == -1) // Enquanto
     {
-      for (int i = 0; i < 5; i++) // loop que monitora os 4 botões de suplemento
+      for (int i = 0; i < 4; i++) // loop que monitora os 4 botões de suplemento e o botão do Leite
       {
         if(digitalRead(button_state[i]) == HIGH) // Ao identificar o pressionamento de um botão...
         {
@@ -82,6 +102,7 @@ void loop()
           Tela_suplemento_atualizada(shake.get_preco_total(), shake.get_id_suplemento(),
                                     shake.get_doses(), shake.get_leite_st());
           delay(400);
+          while(digitalRead(button_state[i]) == HIGH){}
         }
       }
       if (shake.get_id_suplemento() != -1)
@@ -98,13 +119,6 @@ void loop()
   case ESTADO_PAGAMENTO:
     if (1) // Avança para o prepario somente se identificar o pagamaento
     {
-      //PLACEHOLDER ENQUANTO NÃO TEMOS RFID
-      Tela_pagamento_aguardando();
-      delay(1000);
-      Tela_pagamento_confirmado();
-      digitalWrite(5, HIGH); // TESTE RFID
-      delay(1000);
-      digitalWrite(5, LOW); // TESTE RFID
     }
     lcd.clear(); // Limpa display
     estado = ESTADO_PREPARO;  // Avança para próximo estado
@@ -115,14 +129,14 @@ void loop()
     {
       Tela_preparo_esperando_copo();
     }
-    digitalWrite(3, HIGH); // TESTE SENSOR
 
     lcd.clear(); // Limpa display
     Tela_preparo_servindo();
     shake.Prepara_Shake();
     Tela_fim();
     delay(5000);
-    //ESP.restart(); // Reseta esp
+    shake.Limpa_Objeto();
+    estado = ESTADO_INICIO;
     break;
 
   default:
@@ -165,7 +179,7 @@ void Tela_suplemento_atualizada(float preco, int id_sup, int doses, bool leite)
   lcd.setCursor(12, 0);
   lcd.print(preco);
   //Atualiza id do suplemento selecionado
-  if (shake.get_id_suplemento() != -1)
+  if (id_sup != -1)
   {
     lcd.setCursor(11, 1);
     lcd.print(id_sup);

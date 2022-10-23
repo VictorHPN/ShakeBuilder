@@ -3,47 +3,42 @@
 
 /*=============== Inputs/Outputs =================*/
 // Inputs:
-//Botões -> OPERAÇÃO
-#define BUTTON_SUP1 36
-#define BUTTON_SUP2 39
-#define BUTTON_SUP3 34
-#define BUTTON_SUP4 35
-#define BUTTON_CONTINUE 33
-#define BUTTON_LEITE 32
 //Sensor do copo -> PREPARO
-#define SENSOR_COPO 1
+#define SENSOR_COPO 36 // VP
+//Botões -> OPERAÇÃO
+#define BUTTON_CONTINUE 39 // VN
+#define BUTTON_SUP1 34 // D34
+#define BUTTON_SUP2 35 // D35
+#define BUTTON_SUP3 32 // D32
+#define BUTTON_LEITE 33 // D33
 
 // Outputs
 //LEDs -> INDICADORES
-#define LED_SUP1 17
-#define LED_SUP2 16
-#define LED_SUP3 4
-#define LED_SUP4 2
-#define LED_LEITE 15
+#define LED_SUP1 17 // TX2
+#define LED_SUP2 16 // RX2
+#define LED_SUP3 4  // D4
+#define LED_LEITE 2 // D2
 
 //Motores e Bomba da Água -> PREPARO
-#define MOTOR1 25
-#define MOTOR2 26
-#define MOTOR3 27
-#define MOTOR4 14
-#define MOTOR_LEITE 12
-#define BOMBA_AGUA 13
+#define MOTOR1 25 // D25
+#define MOTOR2 26 // D26
+#define MOTOR3 27 // D27
+#define MOTOR_LEITE 14 // D14
+#define BOMBA_AGUA 12 // D12
 
 // Portas dos botões de seleção de suplementos e leite:
-const int button_state[5] = { 
+const int button_state[4] = { 
     BUTTON_SUP1, 
     BUTTON_SUP2, 
-    BUTTON_SUP3, 
-    BUTTON_SUP4, 
+    BUTTON_SUP3,  
     BUTTON_LEITE
     };
 
 // Portas dos leds que indicam se o botão foi pressionado:
-const int led_state[5] = { 
+const int led_state[4] = { 
     LED_SUP1,
     LED_SUP2,
     LED_SUP3,
-    LED_SUP4,
     LED_LEITE
     };
 
@@ -52,7 +47,6 @@ const int motor[5] = {
     MOTOR1,
     MOTOR2,
     MOTOR3,
-    MOTOR4,
     MOTOR_LEITE
     };
 
@@ -79,6 +73,7 @@ class Shake{
         void Prepara_Shake();
         void Apaga_Sups_Escolhidos();
         void Adiciona_ao_Pedido(int sup);
+        void Limpa_Objeto();
 };
 
 #endif //enfif SHAKEBUILDER_LIB

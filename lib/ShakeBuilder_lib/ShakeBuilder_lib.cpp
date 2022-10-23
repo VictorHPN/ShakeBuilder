@@ -4,7 +4,7 @@
 
 /*=============== Variáveis Globais =================*/
 // Preço de cada dose de suplemento:
-float preco_suplemento[4] = {1, 2, 3, 4};
+float preco_suplemento[3] = {1, 2, 3};
 float preco_leite = 10;
 int tempo_dose = 4000; // Tempo que cada motor gira para servir cada dose de suplemento
 int tempo_dose_leite = 5000; // Tempo que cada motor gira para servir uma dose de leite
@@ -62,7 +62,7 @@ void Shake::set_leite_st(bool state)
 void Shake::Apaga_Sups_Escolhidos()
 {
     //Apaga toda as opções de Suplementos escolhidas
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
         digitalWrite(led_state[i], LOW);
     }
@@ -77,7 +77,7 @@ void Shake::Adiciona_ao_Pedido(int id) // Adicionar o suplemento selecionado -> 
 {
     // Coleta se o produto selecionado já foi selecionado ou não, e armazena
     int est_produto_selecionado = digitalRead(led_state[id]);
-    if (id == 4) // Se o botão do Leite foi selecionado...
+    if (id == 3) // Se o botão do Leite foi selecionado...
     {
         if (this->leite_st == false) // Se leite ja estiver ativo -> desativa
         {
@@ -124,13 +124,26 @@ void Shake::Prepara_Shake()
 
     if (this->leite_st == true) // Verifica se deve adicionar leite
     {
-        digitalWrite(motor[4], HIGH); // Ativa motor do leite
+        digitalWrite(MOTOR_LEITE, HIGH); // Ativa motor do leite
         delay(tempo_dose_leite);            // até servir uma dose,
-        digitalWrite(motor[4], LOW);  // e então desliga o motor,
+        digitalWrite(MOTOR_LEITE, LOW);  // e então desliga o motor,
     }
     // Servindo a água:
     tempo_operacao = (this->doses)*tempo_dose_agua; // Calcula o tempo
     digitalWrite(BOMBA_AGUA, HIGH); // Ativa a bomba de água
     delay(tempo_operacao);          // até servir todas as doses,
     digitalWrite(BOMBA_AGUA, LOW);  // e então desliga o motor,
+}
+
+void Shake::Limpa_Objeto() // Reseta todo o objeto shake, e todos os OUTPUTS
+{
+    this->preco_total = 0;
+    this->doses = 0;
+    this->id_suplemento = -1; //'Vazio' -> nenhum seleciondado
+    this->leite_st = false;
+    for (int i = 0; i<4; i++)
+    {
+        digitalWrite(led_state[i], LOW);
+        digitalWrite(motor[i], LOW);
+    }
 }
