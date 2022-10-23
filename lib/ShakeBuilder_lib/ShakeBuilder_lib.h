@@ -43,7 +43,7 @@ const int led_state[4] = {
     };
 
 // Portas de saida dos relês de ativição dos motores:
-const int motor[5] = { 
+const int motor[4] = { 
     MOTOR1,
     MOTOR2,
     MOTOR3,
