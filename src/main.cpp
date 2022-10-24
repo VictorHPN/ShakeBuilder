@@ -73,6 +73,8 @@ void setup()
   Serial.begin(115200); 
   Serial.println("RFID + ESP32");
   Serial.println("Passe alguma tag RFID para verificar o id da mesma.");
+  pinMode(LED_RFID, OUTPUT);
+  digitalWrite(LED_RFID, LOW);
 }
 
 void loop()
@@ -122,6 +124,7 @@ void loop()
     lcd.clear(); // Limpa display
     Tela_pagamento_confirmado();
     delay(3000);
+    digitalWrite(LED_RFID, LOW);
     estado = ESTADO_PREPARO;  // Avança para próximo estado
     break;
 
@@ -130,7 +133,6 @@ void loop()
     {
       Tela_preparo_esperando_copo();
     }
-
     lcd.clear(); // Limpa display
     Tela_preparo_servindo();
     shake.Prepara_Shake();
