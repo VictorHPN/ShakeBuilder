@@ -74,6 +74,6 @@ class Shake{
         void Apaga_Sups_Escolhidos();
         void Adiciona_ao_Pedido(int sup);
         void Limpa_Objeto();
-};
+}; 
 
 #endif //enfif SHAKEBUILDER_LIB

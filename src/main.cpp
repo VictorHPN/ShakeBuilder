@@ -21,7 +21,7 @@ bool continue_pressed = false; // controle do botão de continue
 Shake shake; // Objeto do shake a ser preparado
 
 /*======================= Configs LCD =========================*/
-LiquidCrystal_I2C lcd(0x27, 20, 4); // Inicialização Display LCD
+LiquidCrystal_I2C lcd(0x3F, 20, 4); // Inicialização Display LCD
 // Funções LCD:
 void Tela_incio();
 void Tela_suplemento();
@@ -139,6 +139,7 @@ void loop()
     Tela_fim();
     delay(5000);
     shake.Limpa_Objeto();
+    lcd.clear();
     estado = ESTADO_INICIO;
     break;
 
@@ -182,11 +183,11 @@ void Tela_suplemento_atualizada(float preco, int id_sup, int doses, bool leite)
   lcd.setCursor(12, 0);
   lcd.print(preco);
   //Atualiza id do suplemento selecionado
+  lcd.setCursor(11, 1);
   if (id_sup != -1)
-  {
-    lcd.setCursor(11, 1);
     lcd.print(id_sup);
-  }
+  else
+    lcd.print(" ");
   //Atualiza o número de doses
   lcd.setCursor(19, 1);
   lcd.print(doses);

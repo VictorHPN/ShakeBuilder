@@ -4,8 +4,9 @@
 
 /*=============== Variáveis Globais =================*/
 // Preço de cada dose de suplemento:
-float preco_suplemento[3] = {1, 2, 3};
-float preco_leite = 10;
+int doses_max = 5; // Número máximo de doses
+float preco_suplemento[3] = {1, 2, 3}; // Preço em reais de cada dose de cada suplemento
+float preco_leite = 10; // Preço em reais da dose de leite
 int tempo_dose = 4000; // Tempo que cada motor gira para servir cada dose de suplemento
 int tempo_dose_leite = 5000; // Tempo que cada motor gira para servir uma dose de leite
 int tempo_dose_agua = 3000; // Tempo que cada motor gira para servir a quantidade de água referente a uma dose de suplemento
@@ -101,7 +102,7 @@ void Shake::Adiciona_ao_Pedido(int id) // Adicionar o suplemento selecionado -> 
         this->id_suplemento = id;
         this->preco_total += preco_suplemento[id];
     }
-    else if (doses < 5)
+    else if (doses < doses_max)
     { // Se o suplemento ja foi selecionado durante o pedido, apenas adiciona-se 
       // uma dose a mais (limite 5 doses)
         this->doses += 1;
