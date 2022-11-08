@@ -11,6 +11,7 @@
 #define BUTTON_SUP2 35 // D35
 #define BUTTON_SUP3 32 // D32
 #define BUTTON_LEITE 33 // D33
+#define BUTTON_RETIRA 13 // D13
 
 // Outputs
 //LEDs -> INDICADORES
@@ -72,7 +73,8 @@ class Shake{
         //Demais métodos:
         void Prepara_Shake();
         void Apaga_Sups_Escolhidos();
-        void Adiciona_ao_Pedido(int sup);
+        void Adiciona_ao_Pedido(int id);
+        void Remove_do_Pedido(int id);
         void Limpa_Objeto();
 }; 
 

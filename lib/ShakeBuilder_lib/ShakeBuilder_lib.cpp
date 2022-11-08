@@ -109,11 +109,28 @@ void Shake::Adiciona_ao_Pedido(int id) // Adicionar o suplemento selecionado -> 
         this->preco_total += preco_suplemento[id];
     }
     else
-    { // Caso o limite de 5 doses seja ultrapassado, apaga o pedido
-        Apaga_Sups_Escolhidos();
+    { // Caso o limite de 5 doses seja ultrapassado, não faz nada
         return; // Termina o método já que o pedido foi resetado;
     }
     return;
+}
+
+void Shake::Remove_do_Pedido(int id)
+{
+    if (this->doses > 0) //Verifica se o pedido esta vazio
+    {
+        this->doses -= 1;
+        this->preco_total -= preco_suplemento[id];
+        if(this->doses == 0) // Se retirar todos os suplementos = resetar pedido
+        {
+            Apaga_Sups_Escolhidos(); //Apaga todos os leds e atualiza variávies
+        }
+        return;
+    }
+    else
+    { //Caso o pedido esteja vazio simplesmente retorna do método
+        return;
+    } 
 }
 
 void Shake::Prepara_Shake()

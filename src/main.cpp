@@ -96,7 +96,12 @@ void loop()
     {
       for (int i = 0; i < 4; i++) // loop que monitora os 4 botões de suplemento e o botão do Leite
       {
-        if(digitalRead(button_state[i]) == HIGH) // Ao identificar o pressionamento de um botão...
+        //Verifica se botão de retirar dose foi pressionado
+        if(digitalRead(BUTTON_RETIRA == HIGH) && shake.get_id_suplemento() != -1 )
+        {
+          shake.Remove_do_Pedido(shake.get_id_suplemento());
+        }
+        else if(digitalRead(button_state[i]) == HIGH) // Ao identificar o pressionamento de um botão...
         {
           shake.Adiciona_ao_Pedido(i);
           Tela_suplemento_atualizada(shake.get_preco_total(), shake.get_id_suplemento(),
