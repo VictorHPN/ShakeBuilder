@@ -49,16 +49,17 @@ void setup()
   /*===================== Inputs/Outputs ======================*/
   pinMode(SENSOR_COPO, INPUT);
   pinMode(BUTTON_CONTINUE, INPUT);
+  pinMode(BUTTON_RETIRA, INPUT_PULLDOWN);
   for (int i = 0; i<4; i++)
   {
     pinMode(button_state[i], INPUT_PULLDOWN);
     pinMode(led_state[i], OUTPUT);
     digitalWrite(led_state[i], LOW);
     pinMode(motor[i], OUTPUT);
-    digitalWrite(motor[i], LOW);
+    digitalWrite(motor[i], HIGH);
   }
   pinMode(BOMBA_AGUA, OUTPUT);
-  digitalWrite(BOMBA_AGUA, LOW);
+  digitalWrite(BOMBA_AGUA, HIGH);
 
   /*================ Inicialização Display LCD ================*/
   lcd.begin();
@@ -70,9 +71,6 @@ void setup()
   mfrc522.PCD_Init();  //inicia o modulo RFID
 
   //Monitoramento RFID:
-  Serial.begin(115200); 
-  Serial.println("RFID + ESP32");
-  Serial.println("Passe alguma tag RFID para verificar o id da mesma.");
   pinMode(LED_RFID, OUTPUT);
   digitalWrite(LED_RFID, LOW);
 }
@@ -100,6 +98,7 @@ void loop()
         if(digitalRead(BUTTON_RETIRA == HIGH) && shake.get_id_suplemento() != -1 )
         {
           shake.Remove_do_Pedido(shake.get_id_suplemento());
+          delay(400);
         }
         else if(digitalRead(button_state[i]) == HIGH) // Ao identificar o pressionamento de um botão...
         {
@@ -280,28 +279,21 @@ bool PagamentoRFID()
 
   String conteudo = "";      // cria uma string
 
-  Serial.print("id da tag :"); //imprime na serial o id do cartao
-
   for (byte i = 0; i < mfrc522.uid.size; i++){       // faz uma verificacao dos bits da memoria do cartao
     //ambos comandos abaixo vão concatenar as informacoes do cartao...
     //porem os 2 primeiros irao mostrar na serial e os 2 ultimos guardarao os valores na string de conteudo para fazer as verificacoes
-    Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
-    Serial.print(mfrc522.uid.uidByte[i], HEX);
     conteudo.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
     conteudo.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
-  Serial.println();
   conteudo.toUpperCase();                      // deixa as letras da string todas maiusculas
 
   if (conteudo.substring(1) == ID)// verifica se o ID do cartao lido tem o mesmo ID do cartao que queremos liberar o acesso
   {
-    Serial.print("Cartão reconhecido -> Pagamento CONFIRMADO!");
     digitalWrite(LED_RFID, HIGH); // Indicativo que o pagamento foi confirmado
     return true;
   }
   else // caso o cartao lido não foi registrado
   {
-    Serial.print("Cartão não registrado -> ID não cadastrada.");
     return false;
   }
 }

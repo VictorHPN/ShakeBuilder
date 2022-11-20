@@ -136,21 +136,21 @@ void Shake::Remove_do_Pedido(int id)
 void Shake::Prepara_Shake()
 {
     int tempo_operacao = (this->doses)*tempo_dose; // Calcula o tempo 
-    digitalWrite(motor[this->id_suplemento], HIGH); // Ativa motor do suplemento escolhido
+    digitalWrite(motor[this->id_suplemento], LOW); // Ativa motor do suplemento escolhido
     delay(tempo_operacao);        // até servir todas as doses,
-    digitalWrite(motor[this->id_suplemento], LOW);  // e então desliga o motor,
+    digitalWrite(motor[this->id_suplemento], HIGH);  // e então desliga o motor,
 
     if (this->leite_st == true) // Verifica se deve adicionar leite
     {
-        digitalWrite(MOTOR_LEITE, HIGH); // Ativa motor do leite
+        digitalWrite(MOTOR_LEITE, LOW); // Ativa motor do leite
         delay(tempo_dose_leite);            // até servir uma dose,
-        digitalWrite(MOTOR_LEITE, LOW);  // e então desliga o motor,
+        digitalWrite(MOTOR_LEITE, HIGH);  // e então desliga o motor,
     }
     // Servindo a água:
     tempo_operacao = (this->doses)*tempo_dose_agua; // Calcula o tempo
-    digitalWrite(BOMBA_AGUA, HIGH); // Ativa a bomba de água
+    digitalWrite(BOMBA_AGUA, LOW); // Ativa a bomba de água
     delay(tempo_operacao);          // até servir todas as doses,
-    digitalWrite(BOMBA_AGUA, LOW);  // e então desliga o motor,
+    digitalWrite(BOMBA_AGUA, HIGH);  // e então desliga o motor,
 }
 
 void Shake::Limpa_Objeto() // Reseta todo o objeto shake, e todos os OUTPUTS
@@ -162,6 +162,6 @@ void Shake::Limpa_Objeto() // Reseta todo o objeto shake, e todos os OUTPUTS
     for (int i = 0; i<4; i++)
     {
         digitalWrite(led_state[i], LOW);
-        digitalWrite(motor[i], LOW);
+        digitalWrite(motor[i], HIGH);
     }
 }
