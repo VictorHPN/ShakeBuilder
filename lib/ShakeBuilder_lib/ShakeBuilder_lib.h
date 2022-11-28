@@ -6,26 +6,26 @@
 //Sensor do copo -> PREPARO
 #define SENSOR_COPO 36 // VP
 //Botões -> OPERAÇÃO
-#define BUTTON_CONTINUE 39 // VN
-#define BUTTON_SUP1 34 // D34
-#define BUTTON_SUP2 35 // D35
-#define BUTTON_SUP3 32 // D32
-#define BUTTON_LEITE 33 // D33
-#define BUTTON_RETIRA 13 // D13
+#define BUTTON_CONTINUE 34  // D34
+#define BUTTON_SUP1     33  // D33
+#define BUTTON_SUP2     35  // D35
+#define BUTTON_SUP3     25  // D25
+#define BUTTON_LEITE    32  // D33
+#define BUTTON_RETIRA   39  // VN
 
 // Outputs
 //LEDs -> INDICADORES
-#define LED_SUP1 17 // TX2
-#define LED_SUP2 16 // RX2
-#define LED_SUP3 4  // D4
-#define LED_LEITE 2 // D2
+#define LED_SUP1    17  // TX2
+#define LED_SUP2    4   // D4
+#define LED_SUP3    16  // RX2
+#define LED_LEITE   2   // D2
 
 //Motores e Bomba da Água -> PREPARO
-#define MOTOR1 25 // D25
-#define MOTOR2 26 // D26
-#define MOTOR3 27 // D27
-#define MOTOR_LEITE 14 // D14
-#define BOMBA_AGUA 12 // D12
+#define MOTOR1      26  // D26
+#define MOTOR2      27  // D27
+#define MOTOR3      14  // D14
+#define MOTOR_LEITE 12  // D12
+#define BOMBA_AGUA  13  // D13
 
 // Portas dos botões de seleção de suplementos e leite:
 const int button_state[4] = { 
