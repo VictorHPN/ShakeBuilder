@@ -53,7 +53,7 @@ void setup()
   pinMode(SENSOR_COPO, INPUT);
   pinMode(BUTTON_CONTINUE, INPUT);
   digitalWrite(BUTTON_CONTINUE, HIGH);
-  //pinMode(BUTTON_RETIRA, INPUT);
+  pinMode(BUTTON_RETIRA, INPUT);
   for (int i = 0; i<4; i++)
   {
     pinMode(button_state[i], INPUT);
@@ -97,21 +97,20 @@ void loop()
       for (int i = 0; i < 4; i++) // loop que monitora os 4 botões de suplemento e o botão do Leite
       {
         //Verifica se botão de retirar dose foi pressionado
-        // if(digitalRead(BUTTON_RETIRA == HIGH) && shake.get_id_suplemento() != -1 )
-        // {
-        //   shake.Remove_do_Pedido(shake.get_id_suplemento());
-        //   delay(400);
-        // }
-        // else
-        if(digitalRead(button_state[i]) == HIGH) // Ao identificar o pressionamento de um botão...
+        if(digitalRead(BUTTON_RETIRA) == HIGH && shake.get_id_suplemento() != -1 )
         {
-          shake.Adiciona_ao_Pedido(i);
+          shake.Remove_do_Pedido(shake.get_id_suplemento());
           delay(400);
-          //while(digitalRead(button_state[i]) == HIGH){} // Aguarda botão ser solto para continuar leitura
         }
-        //Tela_teste_Botao();
+        else {
+          if(digitalRead(button_state[i]) == HIGH) // Ao identificar o pressionamento de um botão...
+          {
+            shake.Adiciona_ao_Pedido(i);
+            delay(400);
+          }
+        }
         Tela_suplemento_atualizada(shake.get_preco_total(), shake.get_id_suplemento(),
-                                 shake.get_doses(), shake.get_leite_st());
+                                  shake.get_doses(), shake.get_leite_st());
       }
       if (shake.get_id_suplemento() != -1)
       { // Verifica se Continue foi pressionado e armazena na variável de controle
@@ -157,7 +156,7 @@ void loop()
     while (1) // Prepara o Shake somente se identificar o copo
     {
       Tela_preparo_esperando_copo();
-      if(digitalRead(SENSOR_COPO) == HIGH)
+      if(digitalRead(SENSOR_COPO) == LOW)
         break;
     }
     lcd.clear(); // Limpa display
@@ -303,29 +302,6 @@ void Tela_Pedido_Cancelado()
   lcd.print("Pedido Cancelado...");
   lcd.setCursor(0, 3);
   lcd.print("#==================#");
-}
-
-void Tela_teste_Botao()
-{
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Sup1:");
-  lcd.print(digitalRead(BUTTON_SUP1));
-  lcd.print("  Cont:");
-  lcd.print(digitalRead(BUTTON_CONTINUE));
-  lcd.setCursor(0, 1);
-  lcd.print("Sup2:");
-  lcd.print(digitalRead(BUTTON_SUP2));
-  lcd.print("  Ret(VN):");
-  //lcd.print(digitalRead(BUTTON_RETIRA));
-  lcd.setCursor(0, 2);
-  lcd.print("Sup3:");
-  lcd.print(digitalRead(BUTTON_SUP3));
-  lcd.print("  Sensor:");
-  lcd.print(digitalRead(SENSOR_COPO));
-  lcd.setCursor(0, 3);
-  lcd.print("Leite:");
-  lcd.print(digitalRead(BUTTON_LEITE));
 }
 
 bool PagamentoRFID()

@@ -9,7 +9,7 @@ float preco_suplemento[3] = {1, 2, 3}; // Preço em reais de cada dose de cada s
 float preco_leite = 10; // Preço em reais da dose de leite
 int tempo_dose = 20000; // Tempo que cada motor gira para servir cada dose de suplemento
 int tempo_dose_leite = 10000; // Tempo que cada motor gira para servir uma dose de leite
-int tempo_dose_agua = 1000; // Tempo que cada motor gira para servir a quantidade de água referente a uma dose de suplemento
+int tempo_dose_agua = 3000; // Tempo que cada motor gira para servir a quantidade de água referente a uma dose de suplemento
 
 Shake::Shake()
 {
