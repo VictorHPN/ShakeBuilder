@@ -5,11 +5,11 @@
 /*=============== Variáveis Globais =================*/
 // Preço de cada dose de suplemento:
 int doses_max = 3; // Número máximo de doses
-float preco_suplemento[3] = {1, 2, 3}; // Preço em reais de cada dose de cada suplemento
-float preco_leite = 10; // Preço em reais da dose de leite
+float preco_suplemento[3] = {5.0, 4.0, 4.5}; // Preço em reais de cada dose de cada suplemento
+float preco_leite = 3.0; // Preço em reais da dose de leite
 int tempo_dose = 20000; // Tempo que cada motor gira para servir cada dose de suplemento
 int tempo_dose_leite = 10000; // Tempo que cada motor gira para servir uma dose de leite
-int tempo_dose_agua = 3000; // Tempo que cada motor gira para servir a quantidade de água referente a uma dose de suplemento
+int tempo_dose_agua = 5000; // Tempo que cada motor gira para servir a quantidade de água referente a uma dose de suplemento
 
 Shake::Shake()
 {
@@ -140,17 +140,19 @@ void Shake::Prepara_Shake()
     delay(tempo_operacao);        // até servir todas as doses,
     digitalWrite(motor[this->id_suplemento], HIGH);  // e então desliga o motor,
 
+    delay(300);
     if (this->leite_st == true) // Verifica se deve adicionar leite
     {
         digitalWrite(MOTOR_LEITE, LOW); // Ativa motor do leite
         delay(tempo_dose_leite);            // até servir uma dose,
         digitalWrite(MOTOR_LEITE, HIGH);  // e então desliga o motor,
+        delay(300);
     }
     // Servindo a água:
     tempo_operacao = (this->doses)*tempo_dose_agua; // Calcula o tempo
-    digitalWrite(BOMBA_AGUA, LOW); // Ativa a bomba de água
-    delay(tempo_operacao);          // até servir todas as doses,
-    digitalWrite(BOMBA_AGUA, HIGH);  // e então desliga o motor,
+    digitalWrite(BOMBA_AGUA, LOW);      // Ativa a bomba de água
+    delay(tempo_operacao);              // até servir todas as doses,
+    digitalWrite(BOMBA_AGUA, HIGH);     // e então desliga o motor,
 }
 
 void Shake::Limpa_Objeto() // Reseta todo o objeto shake, e todos os OUTPUTS

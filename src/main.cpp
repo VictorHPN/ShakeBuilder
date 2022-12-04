@@ -219,7 +219,7 @@ void Tela_suplemento_atualizada(float preco, int id_sup, int doses, bool leite)
   lcd.print(doses);
   //Atualiza se o quantidade de água
   lcd.setCursor(5, 2);
-  lcd.print(100*doses);
+  lcd.print(200*doses);
   //Atualiza se o leite foi selecionado
   lcd.setCursor(17, 2);
   if (leite == false)
