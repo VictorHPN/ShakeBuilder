@@ -34,7 +34,6 @@ void Tela_preparo_esperando_copo();
 void Tela_preparo_servindo();
 void Tela_fim();
 void Tela_Pedido_Cancelado();
-void Tela_teste_Botao();
 
 /*======================= Configs RFID =========================*/
 #define ID "8C 07 02 04"
@@ -52,7 +51,6 @@ void setup()
   /*===================== Inputs/Outputs ======================*/
   pinMode(SENSOR_COPO, INPUT);
   pinMode(BUTTON_CONTINUE, INPUT);
-  digitalWrite(BUTTON_CONTINUE, HIGH);
   pinMode(BUTTON_RETIRA, INPUT);
   for (int i = 0; i<4; i++)
   {
@@ -156,7 +154,7 @@ void loop()
     while (1) // Prepara o Shake somente se identificar o copo
     {
       Tela_preparo_esperando_copo();
-      if(digitalRead(SENSOR_COPO) == LOW)
+      if(LOW == digitalRead(SENSOR_COPO))
         break;
     }
     lcd.clear(); // Limpa display
